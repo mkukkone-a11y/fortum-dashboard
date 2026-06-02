@@ -179,11 +179,13 @@
 
 <div class="dashboard-wrapper">
     
+    <!-- UMM-OSIO (VASEN) -->
     <div class="umm-container">
         <h2 class="umm-header">UMMIT AKTIIVISET/TULEVAT:</h2>
         <div id="umm-content">Ladataan tietoja Nord Poolista...</div>
     </div>
 
+    <!-- KELLO-OSIO (OIKEA) -->
     <div class="clock-container">
         <div class="week-display" id="week-number">VIIKKO --</div>
         
@@ -254,7 +256,6 @@
         countdownIntervals.forEach(clearInterval);
         countdownIntervals = [];
 
-        // LIMIT PUDOTETTU 200:AAN (Nopeampi ja kevyempi haku)
         const targetUrl = 'https://ummapi.nordpoolgroup.com/messages?limit=200';
         const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
 
@@ -349,4 +350,34 @@
                         var ft = ms => {
                             if (ms < 0) return '00:00:00';
                             var ts = Math.floor(ms / 1000), da = Math.floor(ts / 86400), h = Math.floor((ts % 86400) / 3600), m = Math.floor((ts % 3600) / 60), se = ts % 60;
-                            return (da > 0 ? da + '
+                            return (da > 0 ? da + 'p ' + h + 'h ' : h + 'h ') + m + 'm ' + se + 's';
+                        };
+                        
+                        var h2 = 7200000; 
+                        
+                        if (ds > 0) {
+                            if (ds <= h2) { tmr.innerText = '⚠️ Alkaa: ' + ft(ds); tmr.className = 'timer warning'; }
+                            else { tmr.innerText = 'Alkaa: ' + ft(ds); tmr.className = 'timer upcoming'; }
+                        } else if (ds <= 0 && de > 0) {
+                            if (de <= h2) { tmr.innerText = '⚠️ AKTIIVINEN. Päättyy: ' + ft(de); tmr.className = 'timer active-warning'; }
+                            else { tmr.innerText = 'AKTIIVINEN. Päättyy: ' + ft(de); tmr.className = 'timer active'; }
+                        } else {
+                            tmr.innerText = 'Tapahtuma päättynyt'; tmr.className = 'timer finished';
+                        }
+                    }, 1000);
+
+                    countdownIntervals.push(intervalId);
+                });
+            })
+            .catch(e => {
+                ummContent.innerHTML = '<div style="color:#ff6666;">Virhe haettaessa tietoja: ' + e.message + '</div>';
+            });
+    }
+
+    fetchUMMData();
+    setInterval(fetchUMMData, 3600000);
+
+</script>
+
+</body>
+</html>
