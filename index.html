@@ -179,13 +179,11 @@
 
 <div class="dashboard-wrapper">
     
-    <!-- UMM-OSIO (VASEN) -->
     <div class="umm-container">
         <h2 class="umm-header">UMMIT AKTIIVISET/TULEVAT:</h2>
         <div id="umm-content">Ladataan tietoja Nord Poolista...</div>
     </div>
 
-    <!-- KELLO-OSIO (OIKEA) -->
     <div class="clock-container">
         <div class="week-display" id="week-number">VIIKKO --</div>
         
@@ -248,7 +246,7 @@
     setInterval(updateClocks, 1000);
 
 
-    /* --- UMM LOGIIKKA --- */
+    /* --- UMM LOGIIKKA (AllOrigins + 200 Limit) --- */
     var ummContent = document.getElementById('umm-content');
     var countdownIntervals = [];
 
@@ -256,8 +254,9 @@
         countdownIntervals.forEach(clearInterval);
         countdownIntervals = [];
 
+        // Vakaa AllOrigins -välityspalvelin ja kevyt 200 ilmoituksen paketti
         const targetUrl = 'https://ummapi.nordpoolgroup.com/messages?limit=200';
-        const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
+        const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(targetUrl);
 
         fetch(proxyUrl)
             .then(r => r.json())
