@@ -74,9 +74,10 @@
         .umm-title {
             font-weight: bold;
             font-size: 18px;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             color: #e0e0e0;
             word-wrap: break-word;
+            line-height: 1.4; /* Lisätty riviväliä pidemmille teksteille */
         }
 
         .umm-time {
@@ -180,11 +181,13 @@
 
 <div class="dashboard-wrapper">
     
+    <!-- UMM-OSIO (VASEN) -->
     <div class="umm-container">
         <h2 class="umm-header">UMMIT AKTIIVISET/TULEVAT:</h2>
         <div id="umm-content">Ladataan tietoja Nord Poolista...</div>
     </div>
 
+    <!-- KELLO-OSIO (OIKEA) -->
     <div class="clock-container">
         <div class="week-display" id="week-number">VIIKKO --</div>
         
@@ -323,10 +326,7 @@
                         nme = 'Yleinen Fortum UMM -ilmoitus';
                     }
 
-                    // 4. Katkaistaan liian pitkät tekstit siististi
-                    if (nme.length > 60) {
-                        nme = nme.substring(0, 60) + '...';
-                    }
+                    // POISTETTU 60 merkin leikkuri kokonaan, teksti saa nyt olla niin pitkä kuin se oikeasti on!
                     
                     title.innerText = nme;
                     
