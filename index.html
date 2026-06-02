@@ -76,6 +76,7 @@
             font-size: 18px;
             margin-bottom: 8px;
             color: #e0e0e0;
+            word-wrap: break-word;
         }
 
         .umm-time {
@@ -246,7 +247,7 @@
     setInterval(updateClocks, 1000);
 
 
-    /* --- UMM LOGIIKKA (Uusi CodeTabs Proxy lisätty) --- */
+    /* --- UMM LOGIIKKA --- */
     var ummContent = document.getElementById('umm-content');
     var countdownIntervals = [];
 
@@ -254,7 +255,6 @@
         countdownIntervals.forEach(clearInterval);
         countdownIntervals = [];
 
-        // Käytetään CodeTabs-välityspalvelinta
         const targetUrl = 'https://ummapi.nordpoolgroup.com/messages?limit=200';
         const proxyUrl = 'https://api.codetabs.com/v1/proxy?quest=' + targetUrl;
 
@@ -298,33 +298,37 @@
                     title.className = 'umm-title';
                     
                     var nme = '';
-                    var arrs = [ev.assets, ev.productionUnits, ev.stations, ev.consumptionUnits, ev.connections, ev.affectedAssets];
+
+                    // 1. Etsitään oikea yksikön tai laitoksen nimi
+                    var arrs = [ev.productionUnits, ev.stations, ev.assets, ev.consumptionUnits];
                     for (var j = 0; j < arrs.length; j++) {
-                        if (arrs[j] && arrs[j][0] && arrs[j][0].name && arrs[j][0].name.length > 3 && !arrs[j][0].name.toLowerCase().includes('fortum')) {
+                        if (arrs[j] && arrs[j][0] && arrs[j][0].name) {
                             nme = arrs[j][0].name; break;
                         }
                     }
-                    if (!nme) {
-                        var keys = ['infrastructure', 'subject', 'unitName', 'stationName', 'assetName', 'plantName'];
-                        for (var k = 0; k < keys.length; k++) {
-                            if (ev[keys[k]] && typeof ev[keys[k]] === 'string' && ev[keys[k]].length > 3 && !ev[keys[k]].toLowerCase().includes('fortum')) {
-                                nme = ev[keys[k]]; break;
-                            }
+
+                    // 2. Jos laitosta ei löydy, etsitään vapaata selitettä tai syytä
+                    if (!nme || nme.toLowerCase().includes('fortum power and heat')) {
+                        if (ev.remarks && ev.remarks.length > 2) {
+                            nme = ev.remarks;
+                        } else if (ev.unavailabilityReason && ev.unavailabilityReason.length > 2) {
+                            nme = "Syy: " + ev.unavailabilityReason;
+                        } else if (ev.subject && ev.subject.length > 2) {
+                            nme = ev.subject;
                         }
                     }
-                    if (!nme) {
-                        var cands = [];
-                        JSON.stringify(ev, (k, v) => {
-                            if (typeof v === 'string' && v.length > 3) {
-                                var L = v.toLowerCase();
-                                if (!L.includes('fortum') && !L.includes('market information') && !L.includes('unavailability') && !v.match(/^[0-9a-f]{8}-/i) && !v.match(/^\d{4}-\d{2}-\d{2}T/) && !v.startsWith('http') && k !== 'messageId') cands.push(v);
-                            }
-                            return v;
-                        });
-                        if (cands.length > 0) nme = cands[0];
+
+                    // 3. Estetään lopullisesti OMIMSG-koodien tulostuminen
+                    if (!nme || nme.startsWith('OMIMSG') || nme.match(/^[0-9a-fA-F-]{10,}$/)) {
+                        nme = 'Yleinen Fortum UMM -ilmoitus';
+                    }
+
+                    // 4. Katkaistaan liian pitkät tekstit siististi
+                    if (nme.length > 60) {
+                        nme = nme.substring(0, 60) + '...';
                     }
                     
-                    title.innerText = nme || ev.messageId || 'UMM Tapahtuma';
+                    title.innerText = nme;
                     
                     var s = new Date(ev.eventStart || ev.deliveryStart || ev.publicationDate);
                     var e = ev.eventStop ? new Date(ev.eventStop) : (ev.deliveryStop ? new Date(ev.deliveryStop) : null);
