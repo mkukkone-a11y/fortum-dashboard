@@ -246,7 +246,7 @@
     setInterval(updateClocks, 1000);
 
 
-    /* --- UMM LOGIIKKA (AllOrigins + 200 Limit) --- */
+    /* --- UMM LOGIIKKA (Uusi CodeTabs Proxy lisätty) --- */
     var ummContent = document.getElementById('umm-content');
     var countdownIntervals = [];
 
@@ -254,9 +254,9 @@
         countdownIntervals.forEach(clearInterval);
         countdownIntervals = [];
 
-        // Vakaa AllOrigins -välityspalvelin ja kevyt 200 ilmoituksen paketti
+        // Käytetään CodeTabs-välityspalvelinta
         const targetUrl = 'https://ummapi.nordpoolgroup.com/messages?limit=200';
-        const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(targetUrl);
+        const proxyUrl = 'https://api.codetabs.com/v1/proxy?quest=' + targetUrl;
 
         fetch(proxyUrl)
             .then(r => r.json())
