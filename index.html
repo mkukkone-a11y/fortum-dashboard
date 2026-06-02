@@ -77,7 +77,7 @@
             margin-bottom: 12px;
             color: #e0e0e0;
             word-wrap: break-word;
-            line-height: 1.4; /* Lisätty riviväliä pidemmille teksteille */
+            line-height: 1.4;
         }
 
         .umm-time {
@@ -181,13 +181,11 @@
 
 <div class="dashboard-wrapper">
     
-    <!-- UMM-OSIO (VASEN) -->
     <div class="umm-container">
         <h2 class="umm-header">UMMIT AKTIIVISET/TULEVAT:</h2>
         <div id="umm-content">Ladataan tietoja Nord Poolista...</div>
     </div>
 
-    <!-- KELLO-OSIO (OIKEA) -->
     <div class="clock-container">
         <div class="week-display" id="week-number">VIIKKO --</div>
         
@@ -258,7 +256,8 @@
         countdownIntervals.forEach(clearInterval);
         countdownIntervals = [];
 
-        const targetUrl = 'https://ummapi.nordpoolgroup.com/messages?limit=200';
+        // NOSTETTU LIMIT: Nyt haetaan 800 ilmoitusta (riittävän syvälle historiaan)
+        const targetUrl = 'https://ummapi.nordpoolgroup.com/messages?limit=800';
         const proxyUrl = 'https://api.codetabs.com/v1/proxy?quest=' + targetUrl;
 
         fetch(proxyUrl)
@@ -325,8 +324,6 @@
                     if (!nme || nme.startsWith('OMIMSG') || nme.match(/^[0-9a-fA-F-]{10,}$/)) {
                         nme = 'Yleinen Fortum UMM -ilmoitus';
                     }
-
-                    // POISTETTU 60 merkin leikkuri kokonaan, teksti saa nyt olla niin pitkä kuin se oikeasti on!
                     
                     title.innerText = nme;
                     
