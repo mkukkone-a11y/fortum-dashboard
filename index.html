@@ -246,18 +246,19 @@
     setInterval(updateClocks, 1000);
 
 
-    /* --- UMM LOGIIKKA AUTOMAATTISELLA PÄIVITYKSELLÄ --- */
+    /* --- UMM LOGIIKKA (Proxy lisätty) --- */
     var ummContent = document.getElementById('umm-content');
-    
-    // Säiliö kellolaskureille, jotta ne voidaan tyhjentää aina kun tiedot haetaan uudestaan
     var countdownIntervals = [];
 
     function fetchUMMData() {
-        // Tyhjennetään vanhat sekuntilaskurit taustalta muistivuotojen estämiseksi
         countdownIntervals.forEach(clearInterval);
         countdownIntervals = [];
 
-        fetch('https://ummapi.nordpoolgroup.com/messages?limit=1000')
+        // TÄSSÄ ON MUUTOS: Käytetään AllOrigins-välityspalvelinta ohittamaan CORS-rajoitus
+        const proxyUrl = 'https://api.allorigins.win/raw?url=';
+        const targetUrl = encodeURIComponent('https://ummapi.nordpoolgroup.com/messages?limit=1000');
+
+        fetch(proxyUrl + targetUrl)
             .then(r => r.json())
             .then(d => {
                 var n = new Date();
@@ -372,10 +373,7 @@
             });
     }
 
-    // 1. Suoritetaan haku välittömästi, kun sivu avataan
     fetchUMMData();
-
-    // 2. Asetetaan haku toistumaan automaattisesti 1 tunnin (3 600 000 millisekunnin) välein
     setInterval(fetchUMMData, 3600000);
 
 </script>
