@@ -274,11 +274,11 @@
         countdownIntervals.forEach(clearInterval);
         countdownIntervals = [];
 
-        // LIITÄ TÄHÄN NORD POOLISTA KOPIOIMASI RSS-LINKKI:
-        const rssUrl = 'https://ummrss.nordpoolgroup.com/messages/?messageTypes=5&areas=10YFI-1--------U&companies=N00290&searchText=river&publicationStartDate=1969-12-31T22%3A00%3A00.000Z&eventStartDate=2026-06-05T21%3A00%3A00.000Z&eventStopDate=2026-06-12T20%3A59%3A59.999Z&limit=100'; 
+        // Fortumille valmiiksi suodatettu RSS-linkki
+        const rssUrl = 'https://umm.nordpoolgroup.com/api/messages/rss?areas=FI&company=Fortum+Power+and+Heat+Oy'; 
         
-        // Luotettava AllOrigins hakee tämän kevyen tiedoston helposti raw-muodossa
-        const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(rssUrl);
+        // Vaihdettu CodeTabs-välityspalvelimeen, joka toimii näillä pienillä tiedostoilla loistavasti
+        const proxyUrl = 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(rssUrl);
 
         fetch(proxyUrl)
             .then(r => r.text())
@@ -395,7 +395,7 @@
     }
 
     fetchUMMRSS();
-    setInterval(fetchUMMRSS, 300000); // RSS-syötettä on turvallista ja kevyttä päivittää tiheämmin, esim. 5 min välein.
+    setInterval(fetchUMMRSS, 300000); 
 
 </script>
 
