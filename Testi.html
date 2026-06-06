@@ -80,6 +80,20 @@
             line-height: 1.4;
         }
 
+        /* UUSI TYYLI REMARKS-KENTÄLLE */
+        .umm-remarks {
+            font-size: 14px;
+            color: #cccccc;
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-left: 3px solid #005293;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            font-style: italic;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+
         .umm-time {
             font-size: 14px;
             color: #aaa;
@@ -181,13 +195,11 @@
 
 <div class="dashboard-wrapper">
     
-    <!-- UMM-OSIO -->
     <div class="umm-container">
         <h2 class="umm-header">UMMIT AKTIIVISET/TULEVAT:</h2>
         <div id="umm-content">Ladataan RSS-syötettä Nord Poolista...</div>
     </div>
 
-    <!-- KELLO-OSIO -->
     <div class="clock-container">
         <div class="week-display" id="week-number">VIIKKO --</div>
         
@@ -322,8 +334,10 @@
                             titleText = titleText.substring(0, 117) + '...';
                         }
                         
+                        // LISÄTTY REMARKS TALTEEN:
                         processedEvents.push({
                             title: titleText,
+                            remarks: evtData['remarks'], 
                             start: eventStart,
                             end: eventStop
                         });
@@ -347,17 +361,25 @@
                     var title = document.createElement('div');
                     title.className = 'umm-title';
                     title.innerText = ev.title;
+                    card.appendChild(title);
+                    
+                    // LISÄTTY DOM-ELEMENTTI REMARKS-KENTÄLLE
+                    if (ev.remarks && ev.remarks.trim().length > 0) {
+                        var remarksDiv = document.createElement('div');
+                        remarksDiv.className = 'umm-remarks';
+                        remarksDiv.innerText = ev.remarks;
+                        card.appendChild(remarksDiv);
+                    }
                     
                     var p = document.createElement('div');
                     p.className = 'umm-time';
                     p.innerHTML = 'Alkaa: ' + ev.start.toLocaleString('fi-FI') + (ev.end ? '<br>Päättyy: ' + ev.end.toLocaleString('fi-FI') : '');
+                    card.appendChild(p);
                     
                     var tmr = document.createElement('div');
                     tmr.className = 'timer';
-                    
-                    card.appendChild(title);
-                    card.appendChild(p);
                     card.appendChild(tmr);
+                    
                     ummContent.appendChild(card);
                     
                     var intervalId = setInterval(() => {
