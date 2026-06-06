@@ -277,8 +277,8 @@
             var hr = parseInt(time[0], 10);
             var min = parseInt(time[1], 10);
             
-            // Korjattu: Lisätään 2 tuntia, jotta aika vastaa Suomen aikaa
-            return new Date(y, m, d, hr + 2, min, 0);
+            // Korjattu: Lisätään 1 tuntia, jotta aika vastaa Ruotsin aikaa
+            return new Date(y, m, d, hr + 1, min, 0);
         }
         return null;
     }
