@@ -250,11 +250,10 @@
     setInterval(updateClocks, 1000);
 
 
-    /* --- UMM RSS-LUKIJAN LOGIIKKA --- */
+    /* --- UMM RSS-LUKIJAN LOGIIKKA (UUSI RSS2JSON-PALVELIN) --- */
     var ummContent = document.getElementById('umm-content');
     var countdownIntervals = [];
 
-    // Apufunktio tekstimuotoisen Nord Pool -päivämäärän ("DD.MM.YYYY HH:MM") muuttamiseksi koodin ymmärtämäksi Date-olioksi
     function parseNordPoolDate(str) {
         if (!str) return null;
         var parts = str.trim().split(/[\s.]+/);
@@ -274,50 +273,50 @@
         countdownIntervals.forEach(clearInterval);
         countdownIntervals = [];
 
-        // Fortumille valmiiksi suodatettu RSS-linkki
-        const rssUrl = 'https://umm.nordpoolgroup.com/api/messages/rss?areas=FI&company=Fortum+Power+and+Heat+Oy'; 
+        // KORVAA ALLA OLEVA TEKSTI SILLÄ KOPIOIMALLASI LINKILLÄ (JÄTÄ HEITTOMERKIT!):
+        const rssUrl = 'https://ummrss.nordpoolgroup.com/messages/?messageTypes=5&areas=10YFI-1--------U&companies=N00290&searchText=river&publicationStartDate=1969-12-31T22%3A00%3A00.000Z&eventStartDate=2026-06-05T21%3A00%3A00.000Z&eventStopDate=2026-06-12T20%3A59%3A59.999Z&limit=100'; 
         
-        // Vaihdettu CodeTabs-välityspalvelimeen, joka toimii näillä pienillä tiedostoilla loistavasti
-        const proxyUrl = 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(rssUrl);
+        // Käytetään virallista RSS-lukijapalvelinta, jota palomuurit eivät estä
+        const proxyUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(rssUrl);
 
         fetch(proxyUrl)
-            .then(r => r.text())
-            .then(xmlText => {
-                var parser = new DOMParser();
-                var xmlDoc = parser.parseFromString(xmlText, "text/xml");
-                var items = xmlDoc.getElementsByTagName("item");
+            .then(r => r.json())
+            .then(data => {
+                if (data.status !== 'ok') {
+                    throw new Error('Palvelin hylkäsi pyynnön.');
+                }
                 
+                var items = data.items;
                 var now = new Date();
                 var next7Days = new Date();
-                next7Days.setDate(now.getDate() + 7); // Asetettu etsimään 7 päivää eteenpäin
+                next7Days.setDate(now.getDate() + 7);
                 
                 var processedEvents = [];
                 
                 for (var i = 0; i < items.length; i++) {
-                    var descHtml = items[i].getElementsByTagName("description")[0].textContent;
+                    var descHtml = items[i].content || items[i].description;
                     
                     var tempDiv = document.createElement('div');
                     tempDiv.innerHTML = descHtml;
                     
                     var rows = tempDiv.getElementsByTagName('tr');
-                    var data = {};
+                    var evtData = {};
                     
                     for (var r = 0; r < rows.length; r++) {
                         var th = rows[r].getElementsByTagName('th')[0];
                         var td = rows[r].getElementsByTagName('td')[0];
                         if (th && td) {
                             var key = th.innerText.replace(':', '').trim().toLowerCase();
-                            data[key] = td.innerText.trim();
+                            evtData[key] = td.innerText.trim();
                         }
                     }
                     
-                    var eventStart = parseNordPoolDate(data['event start']);
-                    var eventStop = parseNordPoolDate(data['event stop']);
+                    var eventStart = parseNordPoolDate(evtData['event start']);
+                    var eventStop = parseNordPoolDate(evtData['event stop']);
                     
-                    // Suodatetaan vain käynnissä olevat tai seuraavan 7 päivän aikana alkavat
                     if (eventStart && eventStart <= next7Days && (!eventStop || eventStop > now)) {
                         
-                        var titleText = data['unit name'] || data['remarks'] || 'Yleinen UMM-ilmoitus';
+                        var titleText = evtData['unit name'] || evtData['remarks'] || 'Yleinen UMM-ilmoitus';
                         
                         if (titleText.length > 120) {
                             titleText = titleText.substring(0, 117) + '...';
@@ -331,7 +330,6 @@
                     }
                 }
                 
-                // Päivitetty tyhjän taulun ilmoitus
                 if (processedEvents.length === 0) {
                     var currentTime = now.toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' });
                     ummContent.innerHTML = '<div style="text-align:center; color:#888; font-size:1.2rem; padding: 20px;">Ei tulevia tai aktiivisia tapahtumia Fortumille seuraavaan 7 päivään.<br><span style="font-size:0.9rem; color:#555;">(Päivitetty klo ' + currentTime + ')</span></div>';
