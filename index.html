@@ -2,7 +2,7 @@
 <html lang="fi">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard: UMM & Kello</title>
+    <title>Dashboard: UMM RSS & Kello</title>
     <style>
         body {
             margin: 0;
@@ -78,6 +78,20 @@
             color: #e0e0e0;
             word-wrap: break-word;
             line-height: 1.4;
+        }
+
+        /* UUSI TYYLI REMARKS-KENTÄLLE */
+        .umm-remarks {
+            font-size: 14px;
+            color: #cccccc;
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-left: 3px solid #005293;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            font-style: italic;
+            word-wrap: break-word;
+            line-height: 1.5;
         }
 
         .umm-time {
@@ -183,7 +197,7 @@
     
     <div class="umm-container">
         <h2 class="umm-header">UMMIT AKTIIVISET/TULEVAT:</h2>
-        <div id="umm-content">Ladataan tietoja Nord Poolista...</div>
+        <div id="umm-content">Ladataan RSS-syötettä Nord Poolista...</div>
     </div>
 
     <div class="clock-container">
@@ -248,104 +262,132 @@
     setInterval(updateClocks, 1000);
 
 
-    /* --- UMM LOGIIKKA --- */
+    /* --- UMM RSS-LUKIJAN LOGIIKKA (UUSI RSS2JSON-PALVELIN) --- */
     var ummContent = document.getElementById('umm-content');
     var countdownIntervals = [];
 
-    function fetchUMMData() {
+    function parseNordPoolDate(str) {
+        if (!str) return null;
+        var parts = str.trim().split(/[\s.]+/);
+        if (parts.length >= 4) {
+            var d = parseInt(parts[0], 10);
+            var m = parseInt(parts[1], 10) - 1;
+            var y = parseInt(parts[2], 10);
+            var time = parts[3].split(':');
+            var hr = parseInt(time[0], 10);
+            var min = parseInt(time[1], 10);
+            
+            // Korjattu: Lisätään 1 tuntia, jotta aika vastaa Ruotsin aikaa
+            return new Date(y, m, d, hr + 1, min, 0);
+        }
+        return null;
+    }
+
+    function fetchUMMRSS() {
         countdownIntervals.forEach(clearInterval);
         countdownIntervals = [];
 
-        // NOSTETTU LIMIT: Nyt haetaan 800 ilmoitusta (riittävän syvälle historiaan)
-        const targetUrl = 'https://ummapi.nordpoolgroup.com/messages?limit=800';
-        const proxyUrl = 'https://api.codetabs.com/v1/proxy?quest=' + targetUrl;
+        // KORVAA ALLA OLEVA TEKSTI SILLÄ KOPIOIMALLASI LINKILLÄ (JÄTÄ HEITTOMERKIT!):
+        const rssUrl = 'https://ummrss.nordpoolgroup.com/messages/?messageTypes=5&areas=10YFI-1--------U&companies=N00290&searchText=river&publicationStartDate=1969-12-31T22%3A00%3A00.000Z&eventStartDate=2026-06-05T21%3A00%3A00.000Z&eventStopDate=2026-06-12T20%3A59%3A59.999Z&limit=100'; 
+        
+        // Käytetään virallista RSS-lukijapalvelinta, jota palomuurit eivät estä
+        const proxyUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(rssUrl);
 
         fetch(proxyUrl)
             .then(r => r.json())
-            .then(d => {
-                var n = new Date();
-                var n7 = new Date();
-                n7.setDate(n.getDate() + 7);
+            .then(data => {
+                if (data.status !== 'ok') {
+                    throw new Error('Palvelin hylkäsi pyynnön.');
+                }
                 
-                var evs = d.items.filter(i => {
-                    var jsonStr = JSON.stringify(i).toLowerCase();
-                    if (!jsonStr.includes('fortum power and heat oy')) return false;
+                var items = data.items;
+                var now = new Date();
+                var next7Days = new Date();
+                next7Days.setDate(now.getDate() + 7);
+                
+                var processedEvents = [];
+                
+                for (var i = 0; i < items.length; i++) {
+                    var descHtml = items[i].content || items[i].description;
                     
-                    var s = new Date(i.eventStart || i.deliveryStart || i.publicationDate);
-                    var e = i.eventStop ? new Date(i.eventStop) : (i.deliveryStop ? new Date(i.deliveryStop) : null);
-                    return (s > n && s <= n7) || (s <= n && e && e > n);
-                });
+                    var tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = descHtml;
+                    
+                    var rows = tempDiv.getElementsByTagName('tr');
+                    var evtData = {};
+                    
+                    for (var r = 0; r < rows.length; r++) {
+                        var th = rows[r].getElementsByTagName('th')[0];
+                        var td = rows[r].getElementsByTagName('td')[0];
+                        if (th && td) {
+                            var key = th.innerText.replace(':', '').trim().toLowerCase();
+                            evtData[key] = td.innerText.trim();
+                        }
+                    }
+                    
+                    var eventStart = parseNordPoolDate(evtData['event start']);
+                    var eventStop = parseNordPoolDate(evtData['event stop']);
+                    
+                    if (eventStart && eventStart <= next7Days && (!eventStop || eventStop > now)) {
+                        
+                        var titleText = evtData['unit name'] || evtData['remarks'] || 'Yleinen UMM-ilmoitus';
+                        
+                        if (titleText.length > 120) {
+                            titleText = titleText.substring(0, 117) + '...';
+                        }
+                        
+                        // LISÄTTY REMARKS TALTEEN:
+                        processedEvents.push({
+                            title: titleText,
+                            remarks: evtData['remarks'], 
+                            start: eventStart,
+                            end: eventStop
+                        });
+                    }
+                }
                 
-                if (!evs.length) {
-                    var currentTime = new Date().toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' });
+                if (processedEvents.length === 0) {
+                    var currentTime = now.toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' });
                     ummContent.innerHTML = '<div style="text-align:center; color:#888; font-size:1.2rem; padding: 20px;">Ei tulevia tai aktiivisia tapahtumia Fortumille seuraavaan 7 päivään.<br><span style="font-size:0.9rem; color:#555;">(Päivitetty klo ' + currentTime + ')</span></div>';
                     return;
                 }
                 
-                evs.sort((a, b) => {
-                    var sa = new Date(a.eventStart || a.deliveryStart || a.publicationDate);
-                    var ea = a.eventStop ? new Date(a.eventStop) : (a.deliveryStop ? new Date(a.deliveryStop) : null);
-                    var sb = new Date(b.eventStart || b.deliveryStart || b.publicationDate);
-                    var eb = b.eventStop ? new Date(b.eventStop) : (b.deliveryStop ? new Date(b.deliveryStop) : null);
-                    return (sa > n ? sa : (ea || sa)) - (sb > n ? sb : (eb || sb));
-                });
+                processedEvents.sort((a, b) => a.start - b.start);
                 
                 ummContent.innerHTML = '';
                 
-                evs.forEach((ev) => {
+                processedEvents.forEach((ev) => {
                     var card = document.createElement('div');
                     card.className = 'umm-card';
                     
                     var title = document.createElement('div');
                     title.className = 'umm-title';
+                    title.innerText = ev.title;
+                    card.appendChild(title);
                     
-                    var nme = '';
-
-                    // 1. Etsitään oikea yksikön tai laitoksen nimi
-                    var arrs = [ev.productionUnits, ev.stations, ev.assets, ev.consumptionUnits];
-                    for (var j = 0; j < arrs.length; j++) {
-                        if (arrs[j] && arrs[j][0] && arrs[j][0].name) {
-                            nme = arrs[j][0].name; break;
-                        }
+                    // LISÄTTY DOM-ELEMENTTI REMARKS-KENTÄLLE
+                    if (ev.remarks && ev.remarks.trim().length > 0) {
+                        var remarksDiv = document.createElement('div');
+                        remarksDiv.className = 'umm-remarks';
+                        remarksDiv.innerText = ev.remarks;
+                        card.appendChild(remarksDiv);
                     }
-
-                    // 2. Jos laitosta ei löydy, etsitään vapaata selitettä tai syytä
-                    if (!nme || nme.toLowerCase().includes('fortum power and heat')) {
-                        if (ev.remarks && ev.remarks.length > 2) {
-                            nme = ev.remarks;
-                        } else if (ev.unavailabilityReason && ev.unavailabilityReason.length > 2) {
-                            nme = "Syy: " + ev.unavailabilityReason;
-                        } else if (ev.subject && ev.subject.length > 2) {
-                            nme = ev.subject;
-                        }
-                    }
-
-                    // 3. Estetään lopullisesti OMIMSG-koodien tulostuminen
-                    if (!nme || nme.startsWith('OMIMSG') || nme.match(/^[0-9a-fA-F-]{10,}$/)) {
-                        nme = 'Yleinen Fortum UMM -ilmoitus';
-                    }
-                    
-                    title.innerText = nme;
-                    
-                    var s = new Date(ev.eventStart || ev.deliveryStart || ev.publicationDate);
-                    var e = ev.eventStop ? new Date(ev.eventStop) : (ev.deliveryStop ? new Date(ev.deliveryStop) : null);
                     
                     var p = document.createElement('div');
                     p.className = 'umm-time';
-                    p.innerHTML = 'Alkaa: ' + s.toLocaleString('fi-FI') + (e ? '<br>Päättyy: ' + e.toLocaleString('fi-FI') : '');
+                    p.innerHTML = 'Alkaa: ' + ev.start.toLocaleString('fi-FI') + (ev.end ? '<br>Päättyy: ' + ev.end.toLocaleString('fi-FI') : '');
+                    card.appendChild(p);
                     
                     var tmr = document.createElement('div');
                     tmr.className = 'timer';
-                    
-                    card.appendChild(title);
-                    card.appendChild(p);
                     card.appendChild(tmr);
+                    
                     ummContent.appendChild(card);
                     
                     var intervalId = setInterval(() => {
                         var nw = new Date();
-                        var ds = s - nw;
-                        var de = e ? e - nw : -1;
+                        var ds = ev.start - nw;
+                        var de = ev.end ? ev.end - nw : -1;
                         
                         var ft = ms => {
                             if (ms < 0) return '00:00:00';
@@ -370,12 +412,12 @@
                 });
             })
             .catch(e => {
-                ummContent.innerHTML = '<div style="color:#ff6666;">Virhe haettaessa tietoja: ' + e.message + '</div>';
+                ummContent.innerHTML = '<div style="color:#ff6666;">Virhe luettaessa RSS-syötettä: ' + e.message + '</div>';
             });
     }
 
-    fetchUMMData();
-    setInterval(fetchUMMData, 3600000);
+    fetchUMMRSS();
+    setInterval(fetchUMMRSS, 300000); 
 
 </script>
 
