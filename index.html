@@ -39,18 +39,39 @@
         }
 
         /* --- UMM TYYLIT --- */
+        .umm-header-container {
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            flex-shrink: 0; 
+        }
+
         .umm-header {
             font-size: 1.6rem;
             color: #a0a0a0;
             text-transform: uppercase;
             letter-spacing: 2px;
-            border-bottom: 2px solid #333;
-            padding-bottom: 15px;
-            margin-top: 0;
-            margin-bottom: 20px;
-            text-align: center;
+            margin: 0;
             font-weight: bold;
-            flex-shrink: 0; 
+        }
+
+        .umm-last-updated {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .error-banner {
+            background-color: #4a1515;
+            color: #ff8080;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            text-align: center;
+            display: none; /* Piilotettu oletuksena */
+            border: 1px solid #ff4d4d;
         }
 
         #umm-content {
@@ -80,7 +101,6 @@
             line-height: 1.4;
         }
 
-        /* UUSI TYYLI REMARKS-KENTÄLLE */
         .umm-remarks {
             font-size: 14px;
             color: #cccccc;
@@ -170,7 +190,6 @@
             text-transform: capitalize;
         }
         
-        /* --- SUOMI --- */
         .finland .country-name { font-size: 1.5rem; }
         .finland .flag-icon { height: 32px; }
         .finland .time-display { 
@@ -180,7 +199,6 @@
         }
         .finland .date-display { font-size: 1.6rem; }
 
-        /* --- RUOTSI --- */
         .sweden { opacity: 0.85; }
         .sweden .country-name { font-size: 1.2rem; }
         .sweden .time-display { 
@@ -196,8 +214,12 @@
 <div class="dashboard-wrapper">
     
     <div class="umm-container">
-        <h2 class="umm-header">UMMIT AKTIIVISET/TULEVAT:</h2>
-        <div id="umm-content">Ladataan RSS-syötettä Nord Poolista...</div>
+        <div class="umm-header-container">
+            <h2 class="umm-header">UMMIT AKTIIVISET/TULEVAT</h2>
+            <div id="last-updated" class="umm-last-updated">Ladataan tietoja...</div>
+        </div>
+        <div id="error-banner" class="error-banner">⚠️ Yhteyshäiriö Nord Pooliin - näytetään aiemmin haetut tiedot</div>
+        <div id="umm-content">Ladataan RSS-syötettä...</div>
     </div>
 
     <div class="clock-container">
@@ -262,9 +284,14 @@
     setInterval(updateClocks, 1000);
 
 
-    /* --- UMM RSS-LUKIJAN LOGIIKKA (UUSI RSS2JSON-PALVELIN) --- */
+    /* --- UMM RSS-LUKIJAN LOGIIKKA --- */
     var ummContent = document.getElementById('umm-content');
+    var errorBanner = document.getElementById('error-banner');
+    var lastUpdatedEl = document.getElementById('last-updated');
+    
     var countdownIntervals = [];
+    var cachedEvents = []; // Välimuisti (Fallback)
+    var isFirstLoad = true;
 
     function parseNordPoolDate(str) {
         if (!str) return null;
@@ -277,42 +304,117 @@
             var hr = parseInt(time[0], 10);
             var min = parseInt(time[1], 10);
             
-            // Korjattu: Lisätään 1 tuntia, jotta aika vastaa Ruotsin aikaa
+            // Nord Poolin aika (CET/CEST) -> Suomen aika (EET/EEST) vaatii aina tasan +1h lisäyksen
             return new Date(y, m, d, hr + 1, min, 0);
         }
         return null;
     }
 
-    function fetchUMMRSS() {
+    // Piirtää tapahtumat ruudulle joko tuoreesta tai vanhasta datasta
+    function renderEvents(eventsToRender, isError) {
         countdownIntervals.forEach(clearInterval);
         countdownIntervals = [];
-
-        // KORVAA ALLA OLEVA TEKSTI SILLÄ KOPIOIMALLASI LINKILLÄ (JÄTÄ HEITTOMERKIT!):
-        const rssUrl = 'https://ummrss.nordpoolgroup.com/messages/?messageTypes=5&areas=10YFI-1--------U&companies=N00290&searchText=river&publicationStartDate=1969-12-31T22%3A00%3A00.000Z&eventStartDate=2026-06-05T21%3A00%3A00.000Z&eventStopDate=2026-06-12T20%3A59%3A59.999Z&limit=100'; 
+        ummContent.innerHTML = '';
         
-        // Käytetään virallista RSS-lukijapalvelinta, jota palomuurit eivät estä
-        const proxyUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(rssUrl);
+        if (isError) {
+            errorBanner.style.display = 'block';
+        } else {
+            errorBanner.style.display = 'none';
+        }
 
-        fetch(proxyUrl)
+        if (eventsToRender.length === 0) {
+            ummContent.innerHTML = '<div style="text-align:center; color:#888; font-size:1.2rem; padding: 20px;">Ei tulevia tai aktiivisia tapahtumia seuraavaan 7 päivään.</div>';
+            return;
+        }
+
+        eventsToRender.forEach((ev) => {
+            var card = document.createElement('div');
+            card.className = 'umm-card';
+            
+            var title = document.createElement('div');
+            title.className = 'umm-title';
+            title.innerText = ev.title;
+            card.appendChild(title);
+            
+            if (ev.remarks && ev.remarks.trim().length > 0) {
+                var remarksDiv = document.createElement('div');
+                remarksDiv.className = 'umm-remarks';
+                remarksDiv.innerText = ev.remarks;
+                card.appendChild(remarksDiv);
+            }
+            
+            var p = document.createElement('div');
+            p.className = 'umm-time';
+            p.innerHTML = 'Alkaa: ' + ev.start.toLocaleString('fi-FI') + (ev.end ? '<br>Päättyy: ' + ev.end.toLocaleString('fi-FI') : '');
+            card.appendChild(p);
+            
+            var tmr = document.createElement('div');
+            tmr.className = 'timer';
+            card.appendChild(tmr);
+            
+            ummContent.appendChild(card);
+            
+            var intervalId = setInterval(() => {
+                var nw = new Date();
+                var ds = ev.start - nw;
+                var de = ev.end ? ev.end - nw : -1;
+                
+                var ft = ms => {
+                    if (ms < 0) return '00:00:00';
+                    var ts = Math.floor(ms / 1000), da = Math.floor(ts / 86400), h = Math.floor((ts % 86400) / 3600), m = Math.floor((ts % 3600) / 60), se = ts % 60;
+                    return (da > 0 ? da + 'p ' + h + 'h ' : h + 'h ') + m + 'm ' + se + 's';
+                };
+                
+                var h2 = 7200000; 
+                
+                if (ds > 0) {
+                    if (ds <= h2) { tmr.innerText = '⚠️ Alkaa: ' + ft(ds); tmr.className = 'timer warning'; }
+                    else { tmr.innerText = 'Alkaa: ' + ft(ds); tmr.className = 'timer upcoming'; }
+                } else if (ds <= 0 && de > 0) {
+                    if (de <= h2) { tmr.innerText = '⚠️ AKTIIVINEN. Päättyy: ' + ft(de); tmr.className = 'timer active-warning'; }
+                    else { tmr.innerText = 'AKTIIVINEN. Päättyy: ' + ft(de); tmr.className = 'timer active'; }
+                } else {
+                    tmr.innerText = 'Tapahtuma päättynyt'; tmr.className = 'timer finished';
+                }
+            }, 1000);
+
+            countdownIntervals.push(intervalId);
+        });
+    }
+
+    function fetchUMMRSS() {
+        // AbortController asettaa 10 sekunnin aikakatkaisun (Timeout)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+        // Dynaaminen URL - poistettu kovakoodatut päivämäärät!
+        var now = new Date();
+        var startDate = new Date(now); startDate.setDate(startDate.getDate() - 7); // viikko taaksepäin
+        var stopDate = new Date(now); stopDate.setDate(stopDate.getDate() + 14); // 2 viikkoa eteenpäin
+        
+        var dynamicUrl = `https://ummrss.nordpoolgroup.com/messages/?messageTypes=5&areas=10YFI-1--------U&companies=N00290&searchText=river&publicationStartDate=2020-01-01T00:00:00.000Z&eventStartDate=${startDate.toISOString()}&eventStopDate=${stopDate.toISOString()}&limit=100`;
+
+        const proxyUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(dynamicUrl);
+
+        fetch(proxyUrl, { signal: controller.signal })
             .then(r => r.json())
             .then(data => {
+                clearTimeout(timeoutId); // Tyhjennetään timeout
+                
                 if (data.status !== 'ok') {
                     throw new Error('Palvelin hylkäsi pyynnön.');
                 }
                 
                 var items = data.items;
-                var now = new Date();
-                var next7Days = new Date();
+                var next7Days = new Date(now);
                 next7Days.setDate(now.getDate() + 7);
                 
                 var processedEvents = [];
                 
                 for (var i = 0; i < items.length; i++) {
                     var descHtml = items[i].content || items[i].description;
-                    
                     var tempDiv = document.createElement('div');
                     tempDiv.innerHTML = descHtml;
-                    
                     var rows = tempDiv.getElementsByTagName('tr');
                     var evtData = {};
                     
@@ -329,14 +431,9 @@
                     var eventStop = parseNordPoolDate(evtData['event stop']);
                     
                     if (eventStart && eventStart <= next7Days && (!eventStop || eventStop > now)) {
-                        
                         var titleText = evtData['unit name'] || evtData['remarks'] || 'Yleinen UMM-ilmoitus';
+                        if (titleText.length > 120) titleText = titleText.substring(0, 117) + '...';
                         
-                        if (titleText.length > 120) {
-                            titleText = titleText.substring(0, 117) + '...';
-                        }
-                        
-                        // LISÄTTY REMARKS TALTEEN:
                         processedEvents.push({
                             title: titleText,
                             remarks: evtData['remarks'], 
@@ -346,73 +443,27 @@
                     }
                 }
                 
-                if (processedEvents.length === 0) {
-                    var currentTime = now.toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' });
-                    ummContent.innerHTML = '<div style="text-align:center; color:#888; font-size:1.2rem; padding: 20px;">Ei tulevia tai aktiivisia tapahtumia Fortumille seuraavaan 7 päivään.<br><span style="font-size:0.9rem; color:#555;">(Päivitetty klo ' + currentTime + ')</span></div>';
-                    return;
-                }
-                
                 processedEvents.sort((a, b) => a.start - b.start);
                 
-                ummContent.innerHTML = '';
+                // Tallenna onnistunut haku välimuistiin
+                cachedEvents = processedEvents; 
+                isFirstLoad = false;
                 
-                processedEvents.forEach((ev) => {
-                    var card = document.createElement('div');
-                    card.className = 'umm-card';
-                    
-                    var title = document.createElement('div');
-                    title.className = 'umm-title';
-                    title.innerText = ev.title;
-                    card.appendChild(title);
-                    
-                    // LISÄTTY DOM-ELEMENTTI REMARKS-KENTÄLLE
-                    if (ev.remarks && ev.remarks.trim().length > 0) {
-                        var remarksDiv = document.createElement('div');
-                        remarksDiv.className = 'umm-remarks';
-                        remarksDiv.innerText = ev.remarks;
-                        card.appendChild(remarksDiv);
-                    }
-                    
-                    var p = document.createElement('div');
-                    p.className = 'umm-time';
-                    p.innerHTML = 'Alkaa: ' + ev.start.toLocaleString('fi-FI') + (ev.end ? '<br>Päättyy: ' + ev.end.toLocaleString('fi-FI') : '');
-                    card.appendChild(p);
-                    
-                    var tmr = document.createElement('div');
-                    tmr.className = 'timer';
-                    card.appendChild(tmr);
-                    
-                    ummContent.appendChild(card);
-                    
-                    var intervalId = setInterval(() => {
-                        var nw = new Date();
-                        var ds = ev.start - nw;
-                        var de = ev.end ? ev.end - nw : -1;
-                        
-                        var ft = ms => {
-                            if (ms < 0) return '00:00:00';
-                            var ts = Math.floor(ms / 1000), da = Math.floor(ts / 86400), h = Math.floor((ts % 86400) / 3600), m = Math.floor((ts % 3600) / 60), se = ts % 60;
-                            return (da > 0 ? da + 'p ' + h + 'h ' : h + 'h ') + m + 'm ' + se + 's';
-                        };
-                        
-                        var h2 = 7200000; 
-                        
-                        if (ds > 0) {
-                            if (ds <= h2) { tmr.innerText = '⚠️ Alkaa: ' + ft(ds); tmr.className = 'timer warning'; }
-                            else { tmr.innerText = 'Alkaa: ' + ft(ds); tmr.className = 'timer upcoming'; }
-                        } else if (ds <= 0 && de > 0) {
-                            if (de <= h2) { tmr.innerText = '⚠️ AKTIIVINEN. Päättyy: ' + ft(de); tmr.className = 'timer active-warning'; }
-                            else { tmr.innerText = 'AKTIIVINEN. Päättyy: ' + ft(de); tmr.className = 'timer active'; }
-                        } else {
-                            tmr.innerText = 'Tapahtuma päättynyt'; tmr.className = 'timer finished';
-                        }
-                    }, 1000);
-
-                    countdownIntervals.push(intervalId);
-                });
+                // Päivitä aikaleima
+                lastUpdatedEl.innerText = 'Päivitetty: klo ' + now.toLocaleTimeString('fi-FI');
+                
+                // Piirrä tapahtumat (Ei virhettä)
+                renderEvents(cachedEvents, false);
             })
             .catch(e => {
-                ummContent.innerHTML = '<div style="color:#ff6666;">Virhe luettaessa RSS-syötettä: ' + e.message + '</div>';
+                clearTimeout(timeoutId);
+                
+                // Jos haku kaatuu, näytä vanhat tiedot välimuistista varoituksella
+                if (!isFirstLoad) {
+                    renderEvents(cachedEvents, true);
+                } else {
+                    ummContent.innerHTML = '<div style="color:#ff6666;">Virhe yhteydessä Nord Pooliin: ' + e.message + '</div>';
+                }
             });
     }
 
