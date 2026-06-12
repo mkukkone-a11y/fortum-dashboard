@@ -393,7 +393,7 @@ function fetchUMMRSS() {
         // annamme oman JavaScriptimme suodattaa esiin vain seuraavan 7 päivän tapahtumat.
         var staticUrl = 'https://ummrss.nordpoolgroup.com/messages/?messageTypes=5&areas=10YFI-1--------U&companies=N00290&searchText=river&publicationStartDate=2020-01-01T00%3A00%3A00.000Z&eventStartDate=2024-01-01T00%3A00%3A00.000Z&limit=100';
 
-        const proxyUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(staticUrl);
+        const proxyUrl = 'https://api.rss2json.com/v1/api.json?api_key=gclv2ea6dap5wu58f0xj4as2jaabpsv78hpxw1v6&rss_url=' + encodeURIComponent(staticUrl);
 
         fetch(proxyUrl, { signal: controller.signal })
             .then(r => r.json())
