@@ -4,19 +4,18 @@ function fetchUMMRSS() {
 
         var now = new Date();
         
-        // 1. Pyöristetään päivät keskiyöhön. 
-        // Tämä pitää hakulinkin täsmälleen samana koko päivän, jolloin välityspalvelin ei luule 
-        // jokaista 5 minuutin välein tulevaa kyselyä kokonaan uudeksi osoitteeksi ja estä meitä.
+        // 1. Pyöristetään päivät keskiyöhön, jotta osoite pysyy samana koko päivän
         var startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
         var stopDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 14);
         
-        // 2. Koodataan päivämäärät Nord Poolin vaatimaan turvalliseen muotoon (esim. : muuttuu %3A)
-        var startIso = encodeURIComponent(startDate.toISOString());
-        var stopIso = encodeURIComponent(stopDate.toISOString());
+        // 2. Otetaan päivät ulos puhtaana ISO-muotona (ILMAN ylimääräistä tuplakoodausta!)
+        var startIso = startDate.toISOString();
+        var stopIso = stopDate.toISOString();
         
-        // Koostetaan osoite turvallisilla päivämäärillä
-        var dynamicUrl = `https://ummrss.nordpoolgroup.com/messages/?messageTypes=5&areas=10YFI-1--------U&companies=N00290&searchText=river&publicationStartDate=2020-01-01T00%3A00%3A00.000Z&eventStartDate=${startIso}&eventStopDate=${stopIso}&limit=100`;
+        // 3. Rakennetaan puhdas alkuperäinen osoite
+        var dynamicUrl = `https://ummrss.nordpoolgroup.com/messages/?messageTypes=5&areas=10YFI-1--------U&companies=N00290&searchText=river&publicationStartDate=2020-01-01T00:00:00.000Z&eventStartDate=${startIso}&eventStopDate=${stopIso}&limit=100`;
 
+        // 4. Tehdään koodaus turvalliseen muotoon VAIN TÄSSÄ KERRAN välityspalvelimelle
         const proxyUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(dynamicUrl);
 
         fetch(proxyUrl, { signal: controller.signal })
@@ -25,7 +24,6 @@ function fetchUMMRSS() {
                 clearTimeout(timeoutId); 
                 
                 if (data.status !== 'ok') {
-                    // Tulostetaan ruudulle nimenomaan palvelimen antama tarkka syy
                     throw new Error(data.message || 'Palvelin hylkäsi pyynnön.');
                 }
                 
@@ -69,20 +67,16 @@ function fetchUMMRSS() {
                 
                 processedEvents.sort((a, b) => a.start - b.start);
                 
-                // Tallenna onnistunut haku välimuistiin
                 cachedEvents = processedEvents; 
                 isFirstLoad = false;
                 
-                // Päivitä aikaleima
                 lastUpdatedEl.innerText = 'Päivitetty: klo ' + now.toLocaleTimeString('fi-FI');
                 
-                // Piirrä tapahtumat (Ei virhettä)
                 renderEvents(cachedEvents, false);
             })
             .catch(e => {
                 clearTimeout(timeoutId);
                 
-                // Jos haku kaatuu, näytä vanhat tiedot välimuistista varoituksella
                 if (!isFirstLoad) {
                     renderEvents(cachedEvents, true);
                 } else {
