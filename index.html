@@ -222,7 +222,6 @@
         .timer.warning { background: #4a1515; color: #ff8080; }
         .timer.active { background: #113311; color: #80ff80; }
         .timer.active-warning { background: #4d2600; color: #ffb366; }
-        .timer.finished { background: #333333; color: #888888; }
 
         .empty-state {
             text-align: center;
@@ -333,7 +332,7 @@
                 <button id="refresh-btn" class="refresh-btn" type="button" title="Hae tiedot heti">&#8635; Päivitä</button>
             </div>
         </div>
-        <div id="error-banner" class="error-banner"></div>
+        <div id="error-banner" class="error-banner" role="status" aria-live="polite"></div>
         <div id="umm-content"><div class="empty-state">Ladataan RSS-syötettä...</div></div>
     </div>
 
@@ -485,11 +484,11 @@
         return ev.title + '|' + ev.start.toISOString();
     }
 
-    // Poimii UMM-viestin HTML-taulukosta avain-arvo -parit
+    // Poimii UMM-viestin HTML-taulukosta avain-arvo -parit.
+    // DOMParser jäsentää HTML:n inertisti: mitään ei ladata eikä suoriteta.
     function extractEventData(descHtml) {
-        var tempDiv = document.createElement('div');
-        tempDiv.innerHTML = descHtml;
-        var rows = tempDiv.getElementsByTagName('tr');
+        var doc = new DOMParser().parseFromString(descHtml, 'text/html');
+        var rows = doc.getElementsByTagName('tr');
         var data = {};
         for (var r = 0; r < rows.length; r++) {
             var th = rows[r].getElementsByTagName('th')[0];
@@ -568,7 +567,7 @@
             var isNew = seenEventKeys !== null && !seenEventKeys.has(eventKey(ev));
             var built = buildCard(ev, isNew);
             ummContent.appendChild(built.card);
-            renderedCards.push({ ev: ev, timerEl: built.timerEl, progressTrack: built.progressTrack, progressFill: built.progressFill });
+            renderedCards.push({ ev: ev, card: built.card, timerEl: built.timerEl, progressTrack: built.progressTrack, progressFill: built.progressFill });
         });
 
         updateTimers(new Date());
@@ -620,15 +619,16 @@
                         tmr.textContent = 'AKTIIVINEN — päättyy: ' + formatDuration(de);
                         tmr.className = 'timer active';
                     }
+                    if (!nextEventInfo || de < nextEventInfo.ms) {
+                        nextEventInfo = { ms: de, label: 'Päättyy' };
+                    }
                 } else {
                     tmr.textContent = 'AKTIIVINEN — ei päättymisaikaa';
                     tmr.className = 'timer active';
                 }
             } else {
-                // Päättynyt (poistuu listalta seuraavassa haussa)
-                item.progressTrack.style.display = 'none';
-                tmr.textContent = 'Tapahtuma päättynyt';
-                tmr.className = 'timer finished';
+                // Päättynyt: piilota kortti heti (poistuu listalta seuraavassa haussa)
+                item.card.style.display = 'none';
             }
         });
 
@@ -636,7 +636,7 @@
 
         // Välilehden otsikko näyttää seuraavan tapahtuman lähtölaskennan
         if (nextEventInfo) {
-            document.title = '⏳ ' + formatDuration(nextEventInfo.ms) + ' — UMM Dashboard';
+            document.title = '⏳ ' + nextEventInfo.label + ' ' + formatDuration(nextEventInfo.ms) + ' — UMM Dashboard';
         } else if (renderedCards.some(function (i) { return i.ev.start <= now && (!i.ev.end || i.ev.end > now); })) {
             document.title = '🟢 Aktiivinen UMM — Dashboard';
         } else {
