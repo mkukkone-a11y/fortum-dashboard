@@ -376,16 +376,21 @@
        ASETUKSET
        ========================================================= */
     var CONFIG = {
-        refreshIntervalMs: 300000,   // normaali päivitysväli: 5 min
+        refreshIntervalMs: 60000,    // kuinka usein tiedosto luetaan: 1 min
         retryDelayMs: 30000,         // uudelleenyritys virheen jälkeen: 30 s
         maxRetries: 3,               // montako pikaista uudelleenyritystä ennen luovuttamista
         fetchTimeoutMs: 10000,       // yksittäisen haun aikakatkaisu
         warningWindowMs: 7200000,    // 2 h -> varoitusväri
         lookaheadDays: 7,            // näytä tapahtumat 7 pv eteenpäin
-        // HUOM: Nord Poolin RSS-syötteen kellonajat ovat UTC-aikaa.
-        // Muunnos Suomen aikaan tehdään Intl-rajapinnalla (huomioi kesä-/talviajan).
-        feedUrl: 'https://ummrss.nordpoolgroup.com/messages/?messageTypes=5&areas=10YFI-1--------U&companies=N00290&searchText=river&publicationStartDate=2020-01-01T00%3A00%3A00.000Z&eventStartDate=2024-01-01T00%3A00%3A00.000Z&limit=100',
-        rss2jsonKey: 'gclv2ea6dap5wu58f0xj4as2jaabpsv78hpxw1v6'
+        maxDataAgeMinutes: 720,      // tätä vanhemmista tiedoista varoitetaan (12 h)
+        // Nord Poolin RSS-syötteen kellonajat ovat CET/CEST-aikaa (markkina-aika),
+        // eli tasan tunnin Suomen aikaa jäljessä. Muunnos tehdään Intl-rajapinnalla,
+        // joka huomioi kesä-/talviajan automaattisesti.
+        feedTimeZone: 'Europe/Stockholm',
+        // Paikallinen tiedosto, jonka hae-umm-feed.ps1 päivittää.
+        // Selain ei voi hakea Nord Poolilta suoraan (CORS), joten haun
+        // tekee ajastettu skripti ja taulu lukee vain tätä tiedostoa.
+        feedFile: 'umm-feed.xml'
     };
 
     /* =========================================================
@@ -420,9 +425,25 @@
         return (da > 0 ? da + 'p ' : '') + h + 'h ' + m + 'm ' + se + 's';
     }
 
-    // KORJAUS AIEMPAAN: syötteen aika ("dd.mm.yyyy hh:mm") tulkitaan UTC:nä
-    // ja näytetään aina Suomen aikavyöhykkeellä. Vanha koodi lisäsi kiinteästi
-    // +2 h, jolloin kesäaikaan (UTC+3) kaikki ajat olivat tunnin pielessä.
+    // Palauttaa aikavyöhykkeen UTC-siirtymän millisekunteina annetulla hetkellä.
+    // Tämän ansiosta kesä-/talviaika hoituu automaattisesti eikä siirtymiä
+    // tarvitse kovakoodata mihinkään.
+    function tzOffsetMs(date, timeZone) {
+        var dtf = new Intl.DateTimeFormat('en-US', {
+            timeZone: timeZone, hour12: false,
+            year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', second: '2-digit'
+        });
+        var p = {};
+        dtf.formatToParts(date).forEach(function (x) { p[x.type] = x.value; });
+        var asUTC = Date.UTC(p.year, p.month - 1, p.day, p.hour % 24, p.minute, p.second);
+        return asUTC - date.getTime();
+    }
+
+    // Syötteen aika on muodossa "dd.mm.yyyy hh:mm" ja se on CET/CEST-aikaa
+    // (Nord Poolin markkina-aika). Suomen aika on aina tunnin CET:iä edellä,
+    // joten näytettävä aika on syötteen arvo + 1 h. Alla oleva muunnos laskee
+    // oikean absoluuttisen hetken, jolloin myös lähtölaskennat menevät oikein.
     function parseNordPoolDate(str) {
         if (!str) return null;
         var parts = str.trim().split(/[\s.]+/);
@@ -436,7 +457,12 @@
         var min = parseInt(time[1], 10);
 
         if ([d, m, y, hr, min].some(isNaN)) return null;
-        return new Date(Date.UTC(y, m, d, hr, min, 0));
+
+        // Tulkitaan seinäkelloaika CET/CEST-vyöhykkeellä: ensin oletetaan UTC,
+        // sitten vähennetään vyöhykkeen siirtymä kyseisellä hetkellä.
+        var guess = Date.UTC(y, m, d, hr, min, 0);
+        var offset = tzOffsetMs(new Date(guess), CONFIG.feedTimeZone);
+        return new Date(guess - offset);
     }
 
     /* =========================================================
@@ -475,7 +501,8 @@
     var cachedEvents = [];      // viimeisin onnistunut haku
     var renderedCards = [];     // { ev, timerEl, progressTrack, progressFill } yhteistä ajastinta varten
     var seenEventKeys = null;   // aiemmin nähdyt tapahtumat (UUSI-merkintää varten)
-    var lastSuccessTime = null;
+    var lastSuccessTime = null;   // milloin taulu viimeksi luki tiedoston
+    var fileModifiedTime = null;  // milloin hakuskripti viimeksi päivitti tiedoston
     var retryCount = 0;
     var refreshTimeoutId = null;
     var isFetching = false;
@@ -549,8 +576,8 @@
         ummContent.innerHTML = '';
 
         if (isStale && lastSuccessTime) {
-            errorBanner.textContent = '⚠️ Yhteyshäiriö Nord Pooliin — näytetään klo ' +
-                fmtTimeFi.format(lastSuccessTime).replace(/\./g, ':') + ' haetut tiedot';
+            errorBanner.textContent = '⚠️ Syötetiedostoa ei saada luettua — näytetään klo ' +
+                fmtTimeFi.format(lastSuccessTime).replace(/\./g, ':') + ' luetut tiedot';
             errorBanner.style.display = 'block';
         } else if (!isStale) {
             errorBanner.style.display = 'none';
@@ -571,6 +598,31 @@
         });
 
         updateTimers(new Date());
+    }
+
+    // Näyttää milloin syötetiedosto viimeksi muuttui. Tiedosto päivittyy vain
+    // kun Nord Poolin syötteessä on jotain uutta, joten muutaman tunnin ikä on
+    // normaali. Pitkä hiljaisuus viittaa siihen, että haku on pysähtynyt.
+    function updateFreshnessLabel() {
+        if (!fileModifiedTime) {
+            lastUpdatedEl.textContent = lastSuccessTime
+                ? 'Luettu: klo ' + fmtTimeFi.format(lastSuccessTime).replace(/\./g, ':')
+                : '';
+            lastUpdatedEl.style.color = '';
+            return;
+        }
+
+        var ageMin = Math.floor((Date.now() - fileModifiedTime.getTime()) / 60000);
+        var kello = fmtTimeFi.format(fileModifiedTime).replace(/\./g, ':');
+
+        if (ageMin > CONFIG.maxDataAgeMinutes) {
+            var ageH = Math.floor(ageMin / 60);
+            lastUpdatedEl.textContent = '⚠️ Syöte ei ole muuttunut ' + ageH + ' tuntiin — tarkista GitHub Actions';
+            lastUpdatedEl.style.color = '#ff8080';
+        } else {
+            lastUpdatedEl.textContent = 'Syöte päivittynyt: klo ' + kello;
+            lastUpdatedEl.style.color = '';
+        }
     }
 
     function updateStats(now) {
@@ -633,6 +685,7 @@
         });
 
         updateStats(now);
+        updateFreshnessLabel();
 
         // Välilehden otsikko näyttää seuraavan tapahtuman lähtölaskennan
         if (nextEventInfo) {
@@ -678,25 +731,40 @@
         isFetching = true;
         refreshBtn.disabled = true;
 
-        var proxyUrl = 'https://api.rss2json.com/v1/api.json?api_key=' + CONFIG.rss2jsonKey +
-            '&rss_url=' + encodeURIComponent(CONFIG.feedUrl);
+        // Aikaleima estää selainta käyttämästä välimuistissa olevaa kopiota
+        var url = CONFIG.feedFile + '?t=' + Date.now();
 
-        fetchWithTimeout(proxyUrl, CONFIG.fetchTimeoutMs)
+        fetchWithTimeout(url, CONFIG.fetchTimeoutMs)
             .then(function (r) {
-                if (!r.ok) throw new Error('HTTP ' + r.status);
-                return r.json();
+                if (!r.ok) throw new Error('tiedostoa ' + CONFIG.feedFile + ' ei voitu lukea (HTTP ' + r.status + ')');
+                // Last-Modified kertoo, milloin hakuskripti viimeksi päivitti
+                // tiedoston — eli tietojen todellisen iän, ei sitä milloin
+                // selain viimeksi luki tiedoston.
+                var lm = r.headers.get('Last-Modified');
+                fileModifiedTime = lm ? new Date(lm) : null;
+                return r.text();
             })
-            .then(function (data) {
-                if (data.status !== 'ok') {
-                    throw new Error(data.message || 'Palvelin hylkäsi pyynnön.');
+            .then(function (text) {
+                var xmlDoc = new DOMParser().parseFromString(text, 'text/xml');
+                if (xmlDoc.getElementsByTagName('parsererror').length > 0) {
+                    throw new Error('syötetiedosto on vioittunut');
                 }
 
+                var items = xmlDoc.getElementsByTagName('item');
                 var now = new Date();
                 var horizon = new Date(now.getTime() + CONFIG.lookaheadDays * 86400000);
                 var processedEvents = [];
 
-                (data.items || []).forEach(function (item) {
-                    var evtData = extractEventData(item.content || item.description || '');
+                for (var i = 0; i < items.length; i++) {
+                    var descEl = items[i].getElementsByTagName('description')[0];
+                    if (!descEl) continue;
+
+                    var evtData = extractEventData(descEl.textContent || '');
+
+                    // Ohita peruutetut ilmoitukset (Status: Dismissed) — muuten
+                    // peruttu rajoitus näkyisi taululla voimassa olevana.
+                    if ((evtData['status'] || '').toLowerCase() !== 'active') continue;
+
                     var eventStart = parseNordPoolDate(evtData['event start']);
                     var eventStop = parseNordPoolDate(evtData['event stop']);
 
@@ -710,7 +778,7 @@
                             end: eventStop
                         });
                     }
-                });
+                }
 
                 processedEvents.sort(function (a, b) { return a.start - b.start; });
 
@@ -718,7 +786,7 @@
                 lastSuccessTime = now;
                 retryCount = 0;
 
-                lastUpdatedEl.textContent = 'Päivitetty: klo ' + fmtTimeFi.format(now).replace(/\./g, ':');
+                updateFreshnessLabel();
                 renderEvents(cachedEvents, false);
 
                 // Merkitse nykyiset tapahtumat nähdyiksi vasta renderöinnin jälkeen,
@@ -737,7 +805,7 @@
                     var errDiv = document.createElement('div');
                     errDiv.className = 'empty-state';
                     errDiv.style.color = '#ff6666';
-                    errDiv.textContent = 'Virhe yhteydessä Nord Pooliin: ' + e.message +
+                    errDiv.textContent = 'Syötetietoja ei saatu luettua: ' + e.message +
                         (retryCount <= CONFIG.maxRetries ? ' — yritetään uudelleen ' + (CONFIG.retryDelayMs / 1000) + ' s kuluttua...' : '');
                     ummContent.appendChild(errDiv);
                 }
