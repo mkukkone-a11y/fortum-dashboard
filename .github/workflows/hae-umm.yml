@@ -1,0 +1,72 @@
+# Hakee Nord Poolin UMM-syötteen ja tallentaa sen tiedostoon umm-feed.xml.
+# Taulu (index.html) lukee vain tuota tiedostoa.
+#
+# Selain ei voi hakea Nord Poolilta suoraan, koska Nord Poolin palvelin ei
+# salli sitä (CORS). Siksi haun tekee tämä työnkulku.
+#
+# Tiedosto sijoitetaan repositoriossa polkuun:
+#   .github/workflows/hae-umm.yml
+
+name: Hae UMM-syote
+
+on:
+  schedule:
+    # 10 minuutin valein. GitHubin minimi on 5 min, mutta ajot voivat
+    # viivastya ruuhka-aikoina - takuuta tarkasta ajasta ei ole.
+    - cron: '*/10 * * * *'
+  # Sallii ajon kasin Actions-valilehdelta (hyodyllinen testaukseen)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  hae-syote:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Hae repositorio
+        uses: actions/checkout@v4
+
+      - name: Hae syote Nord Poolilta
+        env:
+          FEED_URL: 'https://ummrss.nordpoolgroup.com/messages/?messageTypes=5&areas=10YFI-1--------U&companies=N00290&searchText=river&publicationStartDate=2020-01-01T00%3A00%3A00.000Z&eventStartDate=2024-01-01T00%3A00%3A00.000Z&limit=100'
+        run: |
+          set -e
+
+          # Haetaan ensin valiaikaistiedostoon
+          curl --silent --show-error --fail --max-time 30 \
+               --output umm-feed.uusi.xml "$FEED_URL"
+
+          # Varmistus: vastauksen pitaa nayttaa RSS-syotteelta.
+          # Jos ei nayta, vanhaa tiedostoa ei korvata.
+          if ! grep -q '<rss' umm-feed.uusi.xml; then
+            echo "VIRHE: vastaus ei nayta RSS-syotteelta"
+            head -c 300 umm-feed.uusi.xml
+            exit 1
+          fi
+
+          KOKO=$(wc -c < umm-feed.uusi.xml)
+          if [ "$KOKO" -lt 200 ]; then
+            echo "VIRHE: vastaus on liian lyhyt ($KOKO tavua)"
+            exit 1
+          fi
+
+          mv umm-feed.uusi.xml umm-feed.xml
+          echo "Haettu $KOKO tavua"
+
+      - name: Tallenna jos sisalto muuttui
+        run: |
+          set -e
+
+          if [ -z "$(git status --porcelain umm-feed.xml)" ]; then
+            echo "Ei muutoksia syotteessa - ei tallenneta."
+            exit 0
+          fi
+
+          git config user.name  'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add umm-feed.xml
+          git commit -m "UMM-syote paivitetty"
+          git push
+          echo "Muutokset tallennettu."
