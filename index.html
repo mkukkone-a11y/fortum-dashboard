@@ -617,7 +617,7 @@
 
         if (ageMin > CONFIG.maxDataAgeMinutes) {
             var ageH = Math.floor(ageMin / 60);
-            lastUpdatedEl.textContent = '⚠️ Syöte ei ole muuttunut ' + ageH + ' tuntiin — tarkista GitHub Actions';
+            lastUpdatedEl.textContent = '⚠️ Syöte ei ole muuttunut ' + ageH + ' tuntiin';
             lastUpdatedEl.style.color = '#ff8080';
         } else {
             lastUpdatedEl.textContent = 'Syöte päivittynyt: klo ' + kello;
