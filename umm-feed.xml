@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?><rss xmlns:a10="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Nord Pool UMM message RSS Feed</title><description>Urgent Market Messages</description><item><guid isPermaLink="false">b27b3e33-364d-4d3e-93bd-65a64cc88bf6_1</guid><link>https://umm.nordpoolgroup.com/#/messages/b27b3e33-364d-4d3e-93bd-65a64cc88bf6/1</link><title>Other market information</title><description>
+﻿<?xml version="1.0" encoding="utf-8"?><rss xmlns:a10="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Nord Pool UMM message RSS Feed</title><description>Urgent Market Messages</description><item><guid isPermaLink="false">b27b3e33-364d-4d3e-93bd-65a64cc88bf6_2</guid><link>https://umm.nordpoolgroup.com/#/messages/b27b3e33-364d-4d3e-93bd-65a64cc88bf6/2</link><title>Other market information</title><description>
 
 
 
@@ -8,7 +8,7 @@
     &lt;table&gt;
         &lt;tr&gt;
             &lt;th&gt;Published:&lt;/th&gt;
-            &lt;td&gt;16.09.2026 12:46:11&lt;/td&gt;
+            &lt;td&gt;18.09.2026 08:03:48&lt;/td&gt;
         &lt;/tr&gt;
         &lt;tr&gt;
             &lt;th&gt;Publisher:&lt;/th&gt;
@@ -16,8 +16,12 @@
         &lt;/tr&gt;
         &lt;tr&gt;
             &lt;th&gt;Status:&lt;/th&gt;
-            &lt;td&gt;Active&lt;/td&gt;
+            &lt;td&gt;Dismissed&lt;/td&gt;
         &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Cancellation reason:&lt;/th&gt;
+                &lt;td&gt;Excavation work cancelled. &lt;/td&gt;
+            &lt;/tr&gt;
             &lt;tr&gt;
                 &lt;th&gt;Event start:&lt;/th&gt;
                 &lt;td&gt;21.09.2026 01:00&lt;/td&gt;
@@ -45,7 +49,7 @@
                     &lt;td&gt;Fortum Power and Heat Oy&lt;/td&gt;
                 &lt;/tr&gt;
         &lt;/table&gt;
-</description><pubDate>Wed, 16 Sep 2026 10:46:11 Z</pubDate></item><item><guid isPermaLink="false">51117906-c286-4ccc-a1c3-d76e85b94830_16</guid><link>https://umm.nordpoolgroup.com/#/messages/51117906-c286-4ccc-a1c3-d76e85b94830/16</link><title>Other market information</title><description>
+</description><pubDate>Fri, 18 Sep 2026 06:03:48 Z</pubDate></item><item><guid isPermaLink="false">51117906-c286-4ccc-a1c3-d76e85b94830_16</guid><link>https://umm.nordpoolgroup.com/#/messages/51117906-c286-4ccc-a1c3-d76e85b94830/16</link><title>Other market information</title><description>
 
 
 
