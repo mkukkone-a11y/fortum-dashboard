@@ -1,4 +1,66 @@
-﻿<?xml version="1.0" encoding="utf-8"?><rss xmlns:a10="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Nord Pool UMM message RSS Feed</title><description>Urgent Market Messages</description><item><guid isPermaLink="false">b27b3e33-364d-4d3e-93bd-65a64cc88bf6_2</guid><link>https://umm.nordpoolgroup.com/#/messages/b27b3e33-364d-4d3e-93bd-65a64cc88bf6/2</link><title>Other market information</title><description>
+﻿<?xml version="1.0" encoding="utf-8"?><rss xmlns:a10="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Nord Pool UMM message RSS Feed</title><description>Urgent Market Messages</description><item><guid isPermaLink="false">51117906-c286-4ccc-a1c3-d76e85b94830_17</guid><link>https://umm.nordpoolgroup.com/#/messages/51117906-c286-4ccc-a1c3-d76e85b94830/17</link><title>Other market information</title><description>
+
+
+
+
+
+
+    &lt;table&gt;
+        &lt;tr&gt;
+            &lt;th&gt;Published:&lt;/th&gt;
+            &lt;td&gt;21.09.2026 14:40:06&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;th&gt;Publisher:&lt;/th&gt;
+            &lt;td&gt;Fortum Power and Heat Oy&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;th&gt;Status:&lt;/th&gt;
+            &lt;td&gt;Active&lt;/td&gt;
+        &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Event start:&lt;/th&gt;
+                &lt;td&gt;21.08.2026 21:30&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Event stop:&lt;/th&gt;
+                &lt;td&gt;06.11.2026 15:00&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Areas:&lt;/th&gt;
+                &lt;td&gt;FI&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Unit name:&lt;/th&gt;
+                &lt;td&gt;Kemijoki river&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;th&gt;Remarks:&lt;/th&gt;
+            &lt;td&gt;Updated event schedule and remarks. Kemijoki river. Installed production capacity 800 MW. Due to maintenances and technical issues the available capacity is approximately 640 MW, except for the following periods: 24.9.2026 11:00-14:00 available capacity is approximately 530 MW.&lt;/td&gt;
+        &lt;/tr&gt;
+    &lt;/table&gt;
+        &lt;h3&gt;Market participants&lt;/h3&gt;
+        &lt;table&gt;
+                &lt;tr&gt;
+                    &lt;td&gt;Fortum Power and Heat Oy&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td&gt;Kemijoki Oy&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td&gt;Lapin S&amp;#xE4;hk&amp;#xF6;voima Oy&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td&gt;UPM Energy Oy&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td&gt;Helen Oy&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td&gt;Ounastuotanto Oy&lt;/td&gt;
+                &lt;/tr&gt;
+        &lt;/table&gt;
+</description><pubDate>Mon, 21 Sep 2026 12:40:06 Z</pubDate></item><item><guid isPermaLink="false">b27b3e33-364d-4d3e-93bd-65a64cc88bf6_2</guid><link>https://umm.nordpoolgroup.com/#/messages/b27b3e33-364d-4d3e-93bd-65a64cc88bf6/2</link><title>Other market information</title><description>
 
 
 
@@ -49,69 +111,7 @@
                     &lt;td&gt;Fortum Power and Heat Oy&lt;/td&gt;
                 &lt;/tr&gt;
         &lt;/table&gt;
-</description><pubDate>Fri, 18 Sep 2026 06:03:48 Z</pubDate></item><item><guid isPermaLink="false">51117906-c286-4ccc-a1c3-d76e85b94830_16</guid><link>https://umm.nordpoolgroup.com/#/messages/51117906-c286-4ccc-a1c3-d76e85b94830/16</link><title>Other market information</title><description>
-
-
-
-
-
-
-    &lt;table&gt;
-        &lt;tr&gt;
-            &lt;th&gt;Published:&lt;/th&gt;
-            &lt;td&gt;15.09.2026 07:18:07&lt;/td&gt;
-        &lt;/tr&gt;
-        &lt;tr&gt;
-            &lt;th&gt;Publisher:&lt;/th&gt;
-            &lt;td&gt;Fortum Power and Heat Oy&lt;/td&gt;
-        &lt;/tr&gt;
-        &lt;tr&gt;
-            &lt;th&gt;Status:&lt;/th&gt;
-            &lt;td&gt;Active&lt;/td&gt;
-        &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;th&gt;Event start:&lt;/th&gt;
-                &lt;td&gt;21.08.2026 21:30&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;th&gt;Event stop:&lt;/th&gt;
-                &lt;td&gt;06.11.2026 15:00&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;th&gt;Areas:&lt;/th&gt;
-                &lt;td&gt;FI&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;th&gt;Unit name:&lt;/th&gt;
-                &lt;td&gt;Kemijoki river&lt;/td&gt;
-            &lt;/tr&gt;
-        &lt;tr&gt;
-            &lt;th&gt;Remarks:&lt;/th&gt;
-            &lt;td&gt;Updated event schedule and remarks. Kemijoki river. Installed production capacity 800 MW. Due to maintenances and technical issues the available capacity is approximately 640 MW, except for the following periods: 15.9.2026 07:00-09:00 available capacity is approximately 510 MW.&lt;/td&gt;
-        &lt;/tr&gt;
-    &lt;/table&gt;
-        &lt;h3&gt;Market participants&lt;/h3&gt;
-        &lt;table&gt;
-                &lt;tr&gt;
-                    &lt;td&gt;Fortum Power and Heat Oy&lt;/td&gt;
-                &lt;/tr&gt;
-                &lt;tr&gt;
-                    &lt;td&gt;Kemijoki Oy&lt;/td&gt;
-                &lt;/tr&gt;
-                &lt;tr&gt;
-                    &lt;td&gt;Lapin S&amp;#xE4;hk&amp;#xF6;voima Oy&lt;/td&gt;
-                &lt;/tr&gt;
-                &lt;tr&gt;
-                    &lt;td&gt;UPM Energy Oy&lt;/td&gt;
-                &lt;/tr&gt;
-                &lt;tr&gt;
-                    &lt;td&gt;Helen Oy&lt;/td&gt;
-                &lt;/tr&gt;
-                &lt;tr&gt;
-                    &lt;td&gt;Ounastuotanto Oy&lt;/td&gt;
-                &lt;/tr&gt;
-        &lt;/table&gt;
-</description><pubDate>Tue, 15 Sep 2026 05:18:07 Z</pubDate></item><item><guid isPermaLink="false">f21a59a6-da66-4d55-a291-8370875f1dee_2</guid><link>https://umm.nordpoolgroup.com/#/messages/f21a59a6-da66-4d55-a291-8370875f1dee/2</link><title>Other market information</title><description>
+</description><pubDate>Fri, 18 Sep 2026 06:03:48 Z</pubDate></item><item><guid isPermaLink="false">f21a59a6-da66-4d55-a291-8370875f1dee_2</guid><link>https://umm.nordpoolgroup.com/#/messages/f21a59a6-da66-4d55-a291-8370875f1dee/2</link><title>Other market information</title><description>
 
 
 
