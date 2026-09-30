@@ -1,4 +1,51 @@
-﻿<?xml version="1.0" encoding="utf-8"?><rss xmlns:a10="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Nord Pool UMM message RSS Feed</title><description>Urgent Market Messages</description><item><guid isPermaLink="false">51117906-c286-4ccc-a1c3-d76e85b94830_18</guid><link>https://umm.nordpoolgroup.com/#/messages/51117906-c286-4ccc-a1c3-d76e85b94830/18</link><title>Other market information</title><description>
+﻿<?xml version="1.0" encoding="utf-8"?><rss xmlns:a10="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Nord Pool UMM message RSS Feed</title><description>Urgent Market Messages</description><item><guid isPermaLink="false">a0ccbcfc-fe94-420b-bcff-adc044b2c63d_1</guid><link>https://umm.nordpoolgroup.com/#/messages/a0ccbcfc-fe94-420b-bcff-adc044b2c63d/1</link><title>Other market information</title><description>
+
+
+
+
+
+
+    &lt;table&gt;
+        &lt;tr&gt;
+            &lt;th&gt;Published:&lt;/th&gt;
+            &lt;td&gt;30.09.2026 12:34:37&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;th&gt;Publisher:&lt;/th&gt;
+            &lt;td&gt;Fortum Power and Heat Oy&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;th&gt;Status:&lt;/th&gt;
+            &lt;td&gt;Active&lt;/td&gt;
+        &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Event start:&lt;/th&gt;
+                &lt;td&gt;06.10.2026 06:00&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Event stop:&lt;/th&gt;
+                &lt;td&gt;07.10.2026 15:00&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Areas:&lt;/th&gt;
+                &lt;td&gt;FI&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Unit name:&lt;/th&gt;
+                &lt;td&gt;Vuoksi river&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;th&gt;Remarks:&lt;/th&gt;
+            &lt;td&gt;Vuoksi river. Installed production capacity 260 MW. Due to maintenances the available capacity is approximately 140 MW.&lt;/td&gt;
+        &lt;/tr&gt;
+    &lt;/table&gt;
+        &lt;h3&gt;Market participants&lt;/h3&gt;
+        &lt;table&gt;
+                &lt;tr&gt;
+                    &lt;td&gt;Fortum Power and Heat Oy&lt;/td&gt;
+                &lt;/tr&gt;
+        &lt;/table&gt;
+</description><pubDate>Wed, 30 Sep 2026 10:34:37 Z</pubDate></item><item><guid isPermaLink="false">51117906-c286-4ccc-a1c3-d76e85b94830_18</guid><link>https://umm.nordpoolgroup.com/#/messages/51117906-c286-4ccc-a1c3-d76e85b94830/18</link><title>Other market information</title><description>
 
 
 
@@ -5591,51 +5638,4 @@
                     &lt;td&gt;Fortum Power and Heat Oy&lt;/td&gt;
                 &lt;/tr&gt;
         &lt;/table&gt;
-</description><pubDate>Mon, 18 Aug 2025 09:33:48 Z</pubDate></item><item><guid isPermaLink="false">5e5ce8bc-58d3-4be9-9b6b-53cc60fbe659_2</guid><link>https://umm.nordpoolgroup.com/#/messages/5e5ce8bc-58d3-4be9-9b6b-53cc60fbe659/2</link><title>Other market information</title><description>
-
-
-
-
-
-
-    &lt;table&gt;
-        &lt;tr&gt;
-            &lt;th&gt;Published:&lt;/th&gt;
-            &lt;td&gt;14.08.2025 13:05:14&lt;/td&gt;
-        &lt;/tr&gt;
-        &lt;tr&gt;
-            &lt;th&gt;Publisher:&lt;/th&gt;
-            &lt;td&gt;Fortum Power and Heat Oy&lt;/td&gt;
-        &lt;/tr&gt;
-        &lt;tr&gt;
-            &lt;th&gt;Status:&lt;/th&gt;
-            &lt;td&gt;Active&lt;/td&gt;
-        &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;th&gt;Event start:&lt;/th&gt;
-                &lt;td&gt;13.08.2025 00:00&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;th&gt;Event stop:&lt;/th&gt;
-                &lt;td&gt;14.08.2025 13:02&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;th&gt;Areas:&lt;/th&gt;
-                &lt;td&gt;FI&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;th&gt;Unit name:&lt;/th&gt;
-                &lt;td&gt;Oulujoki river&lt;/td&gt;
-            &lt;/tr&gt;
-        &lt;tr&gt;
-            &lt;th&gt;Remarks:&lt;/th&gt;
-            &lt;td&gt;Updated event stop time. Oulujoki river. Installed production capacity 440 MW. Due to river bank excavation work the available capacity varies between 190 - 380 MW.&lt;/td&gt;
-        &lt;/tr&gt;
-    &lt;/table&gt;
-        &lt;h3&gt;Market participants&lt;/h3&gt;
-        &lt;table&gt;
-                &lt;tr&gt;
-                    &lt;td&gt;Fortum Power and Heat Oy&lt;/td&gt;
-                &lt;/tr&gt;
-        &lt;/table&gt;
-</description><pubDate>Thu, 14 Aug 2025 11:05:14 Z</pubDate></item></channel></rss>
+</description><pubDate>Mon, 18 Aug 2025 09:33:48 Z</pubDate></item></channel></rss>
