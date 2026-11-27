@@ -1,4 +1,51 @@
-﻿<?xml version="1.0" encoding="utf-8"?><rss xmlns:a10="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Nord Pool UMM message RSS Feed</title><description>Urgent Market Messages</description><item><guid isPermaLink="false">a41937f3-f880-402a-a68e-92215028e365_2</guid><link>https://umm.nordpoolgroup.com/#/messages/a41937f3-f880-402a-a68e-92215028e365/2</link><title>Other market information</title><description>
+﻿<?xml version="1.0" encoding="utf-8"?><rss xmlns:a10="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Nord Pool UMM message RSS Feed</title><description>Urgent Market Messages</description><item><guid isPermaLink="false">a63fc650-a570-44e3-b9ae-b3cd055f7317_3</guid><link>https://umm.nordpoolgroup.com/#/messages/a63fc650-a570-44e3-b9ae-b3cd055f7317/3</link><title>Other market information</title><description>
+
+
+
+
+
+
+    &lt;table&gt;
+        &lt;tr&gt;
+            &lt;th&gt;Published:&lt;/th&gt;
+            &lt;td&gt;27.11.2026 08:16:12&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;th&gt;Publisher:&lt;/th&gt;
+            &lt;td&gt;Fortum Power and Heat Oy&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;th&gt;Status:&lt;/th&gt;
+            &lt;td&gt;Active&lt;/td&gt;
+        &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Event start:&lt;/th&gt;
+                &lt;td&gt;25.11.2026 00:00&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Event stop:&lt;/th&gt;
+                &lt;td&gt;02.12.2026 00:00&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Areas:&lt;/th&gt;
+                &lt;td&gt;FI&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Unit name:&lt;/th&gt;
+                &lt;td&gt;Oulujoki river&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;th&gt;Remarks:&lt;/th&gt;
+            &lt;td&gt;Updated remarks and event stop time. Oulujoki river. Installed production capacity 440 MW. Due to risk of frazil ice, the available capacity is approximately 340 MW. &lt;/td&gt;
+        &lt;/tr&gt;
+    &lt;/table&gt;
+        &lt;h3&gt;Market participants&lt;/h3&gt;
+        &lt;table&gt;
+                &lt;tr&gt;
+                    &lt;td&gt;Fortum Power and Heat Oy&lt;/td&gt;
+                &lt;/tr&gt;
+        &lt;/table&gt;
+</description><pubDate>Fri, 27 Nov 2026 07:16:12 Z</pubDate></item><item><guid isPermaLink="false">a41937f3-f880-402a-a68e-92215028e365_2</guid><link>https://umm.nordpoolgroup.com/#/messages/a41937f3-f880-402a-a68e-92215028e365/2</link><title>Other market information</title><description>
 
 
 
@@ -49,54 +96,7 @@
                     &lt;td&gt;Fortum Power and Heat Oy&lt;/td&gt;
                 &lt;/tr&gt;
         &lt;/table&gt;
-</description><pubDate>Tue, 24 Nov 2026 07:56:16 Z</pubDate></item><item><guid isPermaLink="false">a63fc650-a570-44e3-b9ae-b3cd055f7317_2</guid><link>https://umm.nordpoolgroup.com/#/messages/a63fc650-a570-44e3-b9ae-b3cd055f7317/2</link><title>Other market information</title><description>
-
-
-
-
-
-
-    &lt;table&gt;
-        &lt;tr&gt;
-            &lt;th&gt;Published:&lt;/th&gt;
-            &lt;td&gt;24.11.2026 08:04:53&lt;/td&gt;
-        &lt;/tr&gt;
-        &lt;tr&gt;
-            &lt;th&gt;Publisher:&lt;/th&gt;
-            &lt;td&gt;Fortum Power and Heat Oy&lt;/td&gt;
-        &lt;/tr&gt;
-        &lt;tr&gt;
-            &lt;th&gt;Status:&lt;/th&gt;
-            &lt;td&gt;Active&lt;/td&gt;
-        &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;th&gt;Event start:&lt;/th&gt;
-                &lt;td&gt;25.11.2026 00:00&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;th&gt;Event stop:&lt;/th&gt;
-                &lt;td&gt;30.11.2026 23:00&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;th&gt;Areas:&lt;/th&gt;
-                &lt;td&gt;FI&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;th&gt;Unit name:&lt;/th&gt;
-                &lt;td&gt;Oulujoki river&lt;/td&gt;
-            &lt;/tr&gt;
-        &lt;tr&gt;
-            &lt;th&gt;Remarks:&lt;/th&gt;
-            &lt;td&gt;Updated event schedule and remarks. Oulujoki river. Installed production capacity 440 MW. Due to risk of frazil ice and maintenances, the available capacity is approximately 340 MW. &lt;/td&gt;
-        &lt;/tr&gt;
-    &lt;/table&gt;
-        &lt;h3&gt;Market participants&lt;/h3&gt;
-        &lt;table&gt;
-                &lt;tr&gt;
-                    &lt;td&gt;Fortum Power and Heat Oy&lt;/td&gt;
-                &lt;/tr&gt;
-        &lt;/table&gt;
-</description><pubDate>Tue, 24 Nov 2026 07:04:53 Z</pubDate></item><item><guid isPermaLink="false">51117906-c286-4ccc-a1c3-d76e85b94830_35</guid><link>https://umm.nordpoolgroup.com/#/messages/51117906-c286-4ccc-a1c3-d76e85b94830/35</link><title>Other market information</title><description>
+</description><pubDate>Tue, 24 Nov 2026 07:56:16 Z</pubDate></item><item><guid isPermaLink="false">51117906-c286-4ccc-a1c3-d76e85b94830_35</guid><link>https://umm.nordpoolgroup.com/#/messages/51117906-c286-4ccc-a1c3-d76e85b94830/35</link><title>Other market information</title><description>
 
 
 
